@@ -134,6 +134,44 @@ function whatsapp_amount($invoice, $amount)
     return $currency . ' ' . number_format($amount, floor($amount) == $amount ? 0 : 2);
 }
 
+/** 'reminder' when a balance is due, 'paid' when cleared, NULL for empty or credit invoices. */
+function whatsapp_message_type($invoice)
+{
+    if ((float)$invoice->invoice_balance > 0) {
+        return 'reminder';
+    }
+
+    return (float)$invoice->invoice_total > 0 ? 'paid' : NULL;
+}
+
+function whatsapp_message_text($invoice)
+{
+    return whatsapp_message_type($invoice) === 'paid'
+        ? whatsapp_paid_text($invoice)
+        : whatsapp_reminder_text($invoice);
+}
+
+function whatsapp_paid_text($invoice)
+{
+    $config = whatsapp_config();
+    $business = !empty($config['whatsapp_business_name'])
+        ? $config['whatsapp_business_name']
+        : 'Supersoft Technologies';
+    $contact_number = !empty($config['whatsapp_business_phone'])
+        ? $config['whatsapp_business_phone']
+        : '03082595128';
+
+    return 'Dear ' . trim($invoice->client_name) . ",\n\n"
+        . 'This is to confirm that your invoice #' . $invoice->invoice_number
+        . ' dated ' . date('d M Y', strtotime($invoice->invoice_date_created))
+        . ' from ' . $business . " has been paid in full.\n\n"
+        . 'Total: ' . whatsapp_amount($invoice, $invoice->invoice_total) . "\n"
+        . 'Paid: ' . whatsapp_amount($invoice, $invoice->invoice_paid) . "\n"
+        . "Balance due: " . whatsapp_amount($invoice, 0) . "\n\n"
+        . 'We appreciate your payment. For any questions, call us at ' . $contact_number . '.'
+        . "\n\nThank you,\n" . $business;
+}
+
 function whatsapp_reminder_text($invoice)
 {
     $config = whatsapp_config();

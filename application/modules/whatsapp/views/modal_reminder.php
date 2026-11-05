@@ -6,7 +6,7 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h3 class="modal-title">
-                    Payment reminder<?php if ($invoice) { echo ' to ' . $esc($invoice->client_name); } ?>
+                    <?php echo ($invoice && whatsapp_message_type($invoice) === 'paid') ? 'Payment confirmation' : 'Payment reminder'; ?><?php if ($invoice) { echo ' to ' . $esc($invoice->client_name); } ?>
                 </h3>
             </div>
 
@@ -32,7 +32,7 @@
                     <p class="mb-0">
                         <?php echo $invoice
                             ? 'This client has no valid mobile number.'
-                            : 'This invoice has no balance due.'; ?>
+                            : 'This invoice has no amount to message about.'; ?>
                     </p>
                 </div>
                 <div class="modal-footer">
@@ -72,7 +72,7 @@
                     button.prop('disabled', false);
                 } else {
                     $('#modal_whatsapp_reminder').modal('hide');
-                    alert('Payment reminder sent.');
+                    alert('WhatsApp message sent.');
                 }
             }).fail(function () {
                 showError('The message could not be sent. Please check you are still logged in.');

@@ -51,7 +51,7 @@ class Ajax extends Admin_Controller
             $status = whatsapp_status();
             $data['number'] = whatsapp_invoice_number($invoice);
             $data['connected'] = $status['state'] === 'connected';
-            $data['text'] = whatsapp_reminder_text($invoice);
+            $data['text'] = whatsapp_message_text($invoice);
         }
 
         $this->layout->load_view('whatsapp/modal_reminder', $data);
@@ -67,7 +67,7 @@ class Ajax extends Admin_Controller
         $text = trim((string)$this->input->post('text'));
 
         if (!$number) {
-            $result = array('error' => 'This invoice has no balance due or the client has no valid mobile number.');
+            $result = array('error' => 'This invoice has no amount or the client has no valid mobile number.');
         } elseif ($text === '' || strlen($text) > 16000) {
             $result = array('error' => 'Please enter a message of a reasonable length.');
         } else {
@@ -83,7 +83,7 @@ class Ajax extends Admin_Controller
 
         $invoice = $this->mdl_invoices->get_by_id((int)$invoice_id);
 
-        return ($invoice && (float)$invoice->invoice_balance > 0) ? $invoice : NULL;
+        return ($invoice && whatsapp_message_type($invoice)) ? $invoice : NULL;
     }
 
     private function require_post()

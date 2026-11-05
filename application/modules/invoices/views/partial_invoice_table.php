@@ -70,11 +70,11 @@
                 </td>
 
                 <td style="white-space: nowrap;">
-                    <?php if ((float)$invoice->invoice_balance > 0) {
+                    <?php if ($whatsapp_type = whatsapp_message_type($invoice)) {
                         if (whatsapp_invoice_number($invoice)) { ?>
                             <a href="#" class="btn btn-default btn-sm whatsapp-reminder"
                                data-invoice-id="<?php echo $invoice->invoice_id; ?>"
-                               title="Send payment reminder on WhatsApp">
+                               title="<?php echo $whatsapp_type === 'paid' ? 'Send payment confirmation on WhatsApp' : 'Send payment reminder on WhatsApp'; ?>">
                                 <i class="fa fa-whatsapp" style="color:#25d366"></i>
                             </a>
                         <?php } else { ?>
