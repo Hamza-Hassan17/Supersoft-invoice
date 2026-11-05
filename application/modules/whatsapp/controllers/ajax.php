@@ -51,7 +51,7 @@ class Ajax extends Admin_Controller
             $status = whatsapp_status();
             $data['number'] = whatsapp_invoice_number($invoice);
             $data['connected'] = $status['state'] === 'connected';
-            $data['text'] = whatsapp_reminder_text($invoice, $data['connected'] ? $status['number'] : NULL);
+            $data['text'] = whatsapp_reminder_text($invoice);
         }
 
         $this->layout->load_view('whatsapp/modal_reminder', $data);

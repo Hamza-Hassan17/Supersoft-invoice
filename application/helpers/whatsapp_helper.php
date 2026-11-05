@@ -134,17 +134,15 @@ function whatsapp_amount($invoice, $amount)
     return $currency . ' ' . number_format($amount, floor($amount) == $amount ? 0 : 2);
 }
 
-/** $contact_number is the connected WhatsApp number, or NULL when not connected. */
-function whatsapp_reminder_text($invoice, $contact_number = NULL)
+function whatsapp_reminder_text($invoice)
 {
     $config = whatsapp_config();
     $business = !empty($config['whatsapp_business_name'])
         ? $config['whatsapp_business_name']
-        : 'SuperSoft Technologies';
-
-    if ($contact_number && substr($contact_number, 0, 2) === '92') {
-        $contact_number = '0' . substr($contact_number, 2);
-    }
+        : 'Supersoft Technologies';
+    $contact_number = !empty($config['whatsapp_business_phone'])
+        ? $config['whatsapp_business_phone']
+        : '03082595128';
 
     return 'Dear ' . trim($invoice->client_name) . ",\n\n"
         . 'This is a kind reminder from ' . $business . ' about your invoice #' . $invoice->invoice_number
@@ -153,6 +151,6 @@ function whatsapp_reminder_text($invoice, $contact_number = NULL)
         . 'Paid: ' . whatsapp_amount($invoice, $invoice->invoice_paid) . "\n"
         . 'Balance due: ' . whatsapp_amount($invoice, $invoice->invoice_balance) . "\n\n"
         . 'Please clear the remaining balance at your earliest convenience.'
-        . ($contact_number ? ' For any questions, call us at ' . $contact_number . '.' : '')
+        . ' For any questions, call us at ' . $contact_number . '.'
         . "\n\nThank you,\n" . $business;
 }

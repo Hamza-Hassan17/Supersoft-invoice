@@ -11,5 +11,6 @@ $config['whatsapp_service_url'] = '';
 // Same value as the service's .token file, at least 32 characters.
 $config['whatsapp_token'] = '';
 
-// Name used in payment reminders.
-$config['whatsapp_business_name'] = 'SuperSoft Technologies';
+// Name and contact number used in payment reminders.
+$config['whatsapp_business_name'] = 'Supersoft Technologies';
+$config['whatsapp_business_phone'] = '03082595128';
