@@ -69,7 +69,21 @@
                     <?php echo $invoice->amount_curre;echo ' '; echo ($invoice->invoice_balance); ?>
                 </td>
 
-                <td>
+                <td style="white-space: nowrap;">
+                    <?php if ((float)$invoice->invoice_balance > 0) {
+                        if (whatsapp_invoice_number($invoice)) { ?>
+                            <a href="#" class="btn btn-default btn-sm whatsapp-reminder"
+                               data-invoice-id="<?php echo $invoice->invoice_id; ?>"
+                               title="Send payment reminder on WhatsApp">
+                                <i class="fa fa-whatsapp" style="color:#25d366"></i>
+                            </a>
+                        <?php } else { ?>
+                            <span class="btn btn-default btn-sm disabled"
+                                  title="No valid mobile number for this client">
+                                <i class="fa fa-whatsapp"></i>
+                            </span>
+                        <?php }
+                    } ?>
                     <div class="options btn-group">
                         <a class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" href="#">
                             <i class="fa fa-cog"></i> <?php echo lang('options'); ?>

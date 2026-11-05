@@ -143,8 +143,14 @@
                     invoice_balance: invoice_balance,
                     invoice_payment_method: invoice_payment_method
                 });
-            });    
+            });
 
+            $(document).on('click', '.whatsapp-reminder', function (e) {
+                e.preventDefault();
+                $('#modal-placeholder').load("<?php echo site_url('whatsapp/ajax/modal_reminder'); ?>", {
+                    invoice_id: $(this).data('invoice-id')
+                });
+            });
 
         });
 
@@ -264,6 +270,12 @@
                     </ul>
                 </li>
 
+                <li>
+                    <a href="<?php echo site_url('whatsapp/index'); ?>">
+                        <span class="hidden-sm">WhatsApp</span><i class="visible-sm-inline fa fa-whatsapp"></i>
+                    </a>
+                </li>
+
             </ul>
 
             <?php if (isset($filter_display) and $filter_display == TRUE) { ?>
@@ -360,6 +372,11 @@
         <li>
             <a href="<?php echo site_url('payments/index'); ?>" title="<?php echo lang('payments'); ?>" class="tip" data-placement="right">
                 <i class="fa fa-money"></i>
+            </a>
+        </li>
+        <li>
+            <a href="<?php echo site_url('whatsapp/index'); ?>" title="WhatsApp" class="tip" data-placement="right">
+                <i class="fa fa-whatsapp"></i>
             </a>
         </li>
     </ul>

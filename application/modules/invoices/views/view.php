@@ -138,6 +138,13 @@ if ($this->config->item('disable_read_only') == TRUE) {
     <div
         class="pull-right <?php if ($invoice->is_read_only != 1 || $invoice->invoice_status_id != 4) { ?>btn-group<?php } ?>">
 
+        <?php if ((float)$invoice->invoice_balance > 0 && whatsapp_invoice_number($invoice)) { ?>
+            <a href="#" class="btn btn-sm btn-default whatsapp-reminder"
+               data-invoice-id="<?php echo $invoice_id; ?>">
+                <i class="fa fa-whatsapp fa-margin" style="color:#25d366"></i> Send reminder
+            </a>
+        <?php } ?>
+
         <a href="#" id="btn_generate_pdf" class="btn_add_row btn btn-sm btn-default generate_pdf"
            data-invoice-id="<?php echo $invoice_id; ?>">
             <i class="fa fa-print fa-margin"></i>
