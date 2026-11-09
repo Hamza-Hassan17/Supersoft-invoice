@@ -44,8 +44,9 @@ function whatsapp_call($method, $path, $data = NULL)
     $config = whatsapp_config();
     $curl = curl_init(rtrim($config['whatsapp_service_url'], '/') . '/' . $path);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-    curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 5);
-    curl_setopt($curl, CURLOPT_TIMEOUT, 20);
+    // Connecting can take over 10s on this host, and the Node app can take 20s to wake.
+    curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 30);
+    curl_setopt($curl, CURLOPT_TIMEOUT, 45);
     curl_setopt($curl, CURLOPT_HTTPHEADER, array(
         'X-Token: ' . $config['whatsapp_token'],
         'Content-Type: application/json',
