@@ -13,4 +13,4 @@ $config['whatsapp_token'] = '';
 
 // Name and contact number used in payment reminders.
 $config['whatsapp_business_name'] = 'Supersoft Technologies';
-$config['whatsapp_business_phone'] = '03082595128';
+$config['whatsapp_business_phone'] = '03082595128'; // shown in messages as 0308-2595128

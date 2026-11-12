@@ -71,7 +71,11 @@ class Ajax extends Admin_Controller
         } elseif ($text === '' || strlen($text) > 16000) {
             $result = array('error' => 'Please enter a message of a reasonable length.');
         } else {
-            $result = whatsapp_send($number, $text);
+            $pdf = whatsapp_invoice_pdf($invoice->invoice_id);
+            $name = 'Invoice_' . preg_replace('/[^\w-]+/', '_', $invoice->invoice_number) . '.pdf';
+            $result = $pdf
+                ? whatsapp_send($number, $text, $pdf, $name)
+                : array('error' => 'The invoice PDF could not be created, so nothing was sent.');
         }
 
         $this->reply($result);

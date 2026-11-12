@@ -14,8 +14,8 @@
                 <div class="modal-body">
                     <p class="text-muted">
                         <?php echo $connected
-                            ? 'Edit the message if needed, then send it from the connected WhatsApp number.'
-                            : "WhatsApp isn't connected, so this opens on your own WhatsApp instead."; ?>
+                            ? 'Edit the message if needed, then send it from the connected WhatsApp number. The invoice PDF is attached automatically.'
+                            : "WhatsApp isn't connected, so this opens on your own WhatsApp instead. The PDF can't be attached this way, so send it yourself."; ?>
                     </p>
                     <div id="whatsapp_reminder_error" class="alert alert-danger" style="display:none"></div>
                     <textarea id="whatsapp_reminder_text" class="form-control" rows="14"><?php echo $esc($text); ?></textarea>
@@ -60,7 +60,7 @@
             window.open('https://wa.me/<?php echo $esc($number); ?>?text=' + encodeURIComponent(text), '_blank', 'noopener');
             $('#modal_whatsapp_reminder').modal('hide');
             <?php } else { ?>
-            button.prop('disabled', true);
+            button.prop('disabled', true).text('Sending...');
             $.ajax({
                 type: 'POST',
                 url: "<?php echo site_url('whatsapp/ajax/send_reminder'); ?>",
@@ -69,14 +69,14 @@
             }).done(function (response) {
                 if (response.error) {
                     showError(response.error);
-                    button.prop('disabled', false);
+                    button.prop('disabled', false).text('Send now');
                 } else {
                     $('#modal_whatsapp_reminder').modal('hide');
                     alert('WhatsApp message sent.');
                 }
             }).fail(function () {
-                showError('The message could not be sent. Please check you are still logged in.');
-                button.prop('disabled', false);
+                showError('No reply from the server. Check WhatsApp before resending, as the message may already have gone.');
+                button.prop('disabled', false).text('Send now');
             });
             <?php } ?>
         });

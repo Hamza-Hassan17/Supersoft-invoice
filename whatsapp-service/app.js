@@ -91,7 +91,8 @@ function readJson(req) {
         let raw = '';
         req.on('data', (chunk) => {
             raw += chunk;
-            if (raw.length > 64 * 1024) { reject(new Error('too large')); req.destroy(); }
+            // Room for a base64 PDF invoice.
+            if (raw.length > 20 * 1024 * 1024) { reject(new Error('too large')); req.destroy(); }
         });
         req.on('end', () => {
             try { resolve(raw ? JSON.parse(raw) : {}); } catch (e) { reject(e); }
@@ -111,15 +112,33 @@ const server = http.createServer(async (req, res) => {
             return reply(res, 200, { state, number, qr: qrImage });
         }
         if (req.method === 'POST' && route === 'send') {
-            const { to, text } = await readJson(req);
+            const { to, text, document } = await readJson(req);
             if (state !== 'connected') return reply(res, 409, { error: 'WhatsApp is not connected' });
             if (!/^\d{10,15}$/.test(String(to)) || !text) return reply(res, 422, { error: 'to and text are required' });
+
+            // Optional PDF sent after the text: { data: base64, fileName }.
+            let pdf = null;
+            if (document) {
+                pdf = Buffer.from(String(document.data || ''), 'base64');
+                if (pdf.length === 0 || pdf.slice(0, 5).toString() !== '%PDF-') {
+                    return reply(res, 422, { error: 'The attachment is not a valid PDF' });
+                }
+            }
 
             const jid = `${to}@s.whatsapp.net`;
             const [found] = await sock.onWhatsApp(jid);
             if (!found || !found.exists) return reply(res, 422, { error: 'This number is not on WhatsApp' });
 
             const sent = await sock.sendMessage(found.jid, { text: String(text) });
+            if (pdf) {
+                const fileName = String(document.fileName || 'Invoice.pdf').replace(/[^\w.\- ]+/g, '_').slice(0, 100);
+                try {
+                    await sock.sendMessage(found.jid, { document: pdf, mimetype: 'application/pdf', fileName });
+                } catch (error) {
+                    console.error('pdf failed:', error.message);
+                    return reply(res, 502, { error: 'The message was sent, but the PDF could not be attached. Please send the PDF manually.' });
+                }
+            }
             return reply(res, 200, { ok: true, id: sent.key.id });
         }
         if (req.method === 'POST' && route === 'logout') {
