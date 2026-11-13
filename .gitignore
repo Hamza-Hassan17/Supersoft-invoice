@@ -17,6 +17,7 @@
 /whatsapp-service/node_modules/
 /whatsapp-service/auth/
 /whatsapp-service/.token
+/whatsapp-service/.instance.pid
 
 .idea
 .sass-cache

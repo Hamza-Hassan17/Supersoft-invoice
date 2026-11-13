@@ -62,7 +62,11 @@ async function connect() {
             qrImage = null;
             console.log('connection closed, code', code);
             if (code === DisconnectReason.loggedOut) {
-                fs.rmSync(AUTH_DIR, { recursive: true, force: true }); // start over with a new QR
+                try {
+                    fs.rmSync(AUTH_DIR, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }); // start over with a new QR
+                } catch (error) {
+                    console.error('could not clear auth:', error.message);
+                }
             }
             retryTimer = setTimeout(() => connect().catch(onConnectError), 5000);
         }
@@ -157,7 +161,38 @@ if (TOKEN.length < 32) {
     process.exit(1);
 }
 
+// The host can start a second copy without stopping the first. Two copies on one
+// WhatsApp login knock each other off, so the newest copy wins: it stops the older
+// one, and any copy that finds a newer one in the lock file exits.
+const LOCK_FILE = path.join(__dirname, '.instance.pid');
+
+function takeOver() {
+    try {
+        const older = parseInt(fs.readFileSync(LOCK_FILE, 'utf8'), 10);
+        if (older && older !== process.pid
+            && fs.readFileSync(`/proc/${older}/cmdline`, 'utf8').includes(__dirname)) {
+            process.kill(older, 'SIGTERM');
+            console.log('stopped older copy', older);
+        }
+    } catch (error) {
+        // No lock file, or the older copy is already gone.
+    }
+    fs.writeFileSync(LOCK_FILE, String(process.pid));
+}
+
+setInterval(() => {
+    try {
+        if (fs.readFileSync(LOCK_FILE, 'utf8').trim() !== String(process.pid)) {
+            console.log('a newer copy is running, exiting');
+            process.exit(0);
+        }
+    } catch (error) {
+        // Lock file missing: keep running.
+    }
+}, 5000);
+
 server.listen(process.env.PORT || 3100, () => {
     console.log('whatsapp service listening');
-    connect().catch(onConnectError);
+    takeOver();
+    setTimeout(() => connect().catch(onConnectError), 3000); // let the older copy let go first
 });
