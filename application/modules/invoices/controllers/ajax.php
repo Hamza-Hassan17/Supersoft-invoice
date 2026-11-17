@@ -113,18 +113,10 @@ class Ajax extends Admin_Controller
             $this->load->model('invoices/mdl_invoice_amounts');
             $this->mdl_invoice_amounts->calculate($invoice_id);
 
-            // Email the client once, the first time the invoice is saved with a total.
-            // A mail problem must never stop the invoice from saving.
-            try {
-                $this->load->helper('invoice_email');
-                invoice_auto_email($invoice_id);
-            } catch (Exception $e) {
-                log_message('error', 'Invoice email failed: ' . $e->getMessage());
-            }
-
             $response = array(
                 'success' => 1
             );
+            $send_email = TRUE;
         } else {
             $this->load->helper('json_error');
             $response = array(
@@ -146,6 +138,40 @@ class Ajax extends Admin_Controller
         }
 
         echo json_encode($response);
+
+        if (!empty($send_email)) {
+            $this->send_invoice_email_after_reply($invoice_id);
+        }
+    }
+
+    /**
+     * Emails the client once, the first time the invoice is saved with a total.
+     * Runs after the save reply has gone to the browser, because building the PDF
+     * and talking to the mail server can take longer than the page waits.
+     * A mail problem must never affect saving.
+     */
+    private function send_invoice_email_after_reply($invoice_id)
+    {
+        ignore_user_abort(TRUE);
+        @set_time_limit(120);
+
+        // Hand the reply to the browser now, where the server supports it.
+        if (function_exists('litespeed_finish_request')) {
+            litespeed_finish_request();
+        } elseif (function_exists('fastcgi_finish_request')) {
+            fastcgi_finish_request();
+        }
+
+        ob_start(); // any notice or warning must not end up in the save reply
+        try {
+            $this->load->helper('invoice_email');
+            invoice_auto_email($invoice_id);
+        } catch (Exception $e) {
+            log_message('error', 'Invoice email failed: ' . $e->getMessage());
+        } catch (Error $e) {
+            log_message('error', 'Invoice email failed: ' . $e->getMessage());
+        }
+        ob_end_clean();
     }
 
     public function save_invoice_tax_rate()
