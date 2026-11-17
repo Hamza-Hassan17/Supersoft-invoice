@@ -51,9 +51,11 @@ function invoice_auto_email($invoice_id)
         'filename' => 'Invoice_' . preg_replace('/[^\w-]+/', '_', $invoice->invoice_number) . '.pdf',
     )) : NULL;
 
-    $from = filter_var($invoice->user_email, FILTER_VALIDATE_EMAIL)
-        ? array($invoice->user_email, $invoice->user_name)
-        : $CI->mdl_settings->setting('smtp_username');
+    // Send as the mailbox the app logs in with. Sending as another domain (the
+    // user's own address) gets rejected as spam by the host's outbound filter.
+    $smtp_user = trim((string)$CI->mdl_settings->setting('smtp_username'));
+    $from_address = filter_var($smtp_user, FILTER_VALIDATE_EMAIL) ? $smtp_user : $invoice->user_email;
+    $from = array($from_address, $invoice->user_name);
 
     $CI->load->helper('mailer/phpmailer');
     $sent = phpmail_send($from, $to, $subject, $html, NULL, NULL, NULL, $attachments);
