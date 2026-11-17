@@ -65,6 +65,12 @@
                 });
         });
 
+        // Same "Quote to invoice" dialog as in the Options menu.
+        $('.btn-quote-to-invoice').click(function (e) {
+            e.preventDefault();
+            $('#modal-placeholder').load("<?php echo site_url('quotes/ajax/modal_quote_to_invoice'); ?>/" + <?php echo (int)$quote_id; ?>);
+        });
+
         $('.generate_pdf').click(function () {
             window.open('<?php echo site_url('quotes/generate_pdf/' . $quote_id); ?>', '_blank');
         });
@@ -117,6 +123,10 @@
     <h1><?php echo lang('quote'); ?> #<?php echo $quote->quote_number; ?></h1>
 
     <div class="pull-right btn-group">
+
+        <a href="#" class="btn btn-sm btn-primary btn-quote-to-invoice" title="Create an invoice from this quotation">
+            <i class="fa fa-file-text fa-margin"></i> Create invoice
+        </a>
 
         <div class="options btn-group pull-left">
                <a href="#" id="btn_generate_pdf" class="btn_add_row btn btn-sm btn-default generate_pdf"

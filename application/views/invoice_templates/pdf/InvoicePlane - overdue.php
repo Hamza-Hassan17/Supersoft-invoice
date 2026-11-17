@@ -49,7 +49,8 @@
 
         if ($invoice->client_phone) {
             echo '<div>' . lang('phone_abbr') . ': ' . $invoice->client_phone . '</div>';
-        } ?>
+        }
+        echo invoice_qr_html($invoice); ?>
 
     </div>
     <div id="company">
@@ -110,7 +111,7 @@
             </tr>
             <tr>
                 <td class="text-red"><?php echo lang('amount_due') . ': '; ?></td>
-                <td class="text-red"><?php echo format_currency($invoice->invoice_balance); ?></td>
+                <td class="text-red"><?php echo pdf_money($invoice->amount_curre, $invoice->invoice_balance); ?></td>
             </tr>
             <?php if ($payment_method): ?>
                 <tr>
@@ -147,15 +148,15 @@
                     <?php echo format_amount($item->item_quantity); ?>
                 </td>
                 <td class="text-right">
-                    <?php echo format_currency($item->item_price); ?>
+                    <?php echo pdf_money($invoice->amount_curre, $item->item_price); ?>
                 </td>
                 <?php if ($show_discounts) :?>
                     <td class="text-right">
-                        <?php echo format_currency($item->item_discount); ?>
+                        <?php echo pdf_money($invoice->amount_curre, $item->item_discount); ?>
                     </td>
                 <?php endif; ?>
                 <td class="text-right">
-                    <?php echo format_currency($item->item_subtotal); ?>
+                    <?php echo pdf_money($invoice->amount_curre, $item->item_subtotal); ?>
                 </td>
             </tr>
         <?php } ?>
@@ -167,7 +168,7 @@
             <td <?php echo ($show_discounts ? 'colspan="5"' : 'colspan="4"'); ?> class="text-right">
                 <?php echo lang('subtotal'); ?>
             </td>
-            <td class="text-right"><?php echo format_currency($invoice->invoice_item_subtotal); ?></td>
+            <td class="text-right"><?php echo pdf_money($invoice->amount_curre, $invoice->invoice_item_subtotal); ?></td>
         </tr>
 
         <?php if ($invoice->invoice_item_tax_total > 0) { ?>
@@ -176,7 +177,7 @@
                     <?php echo lang('item_tax'); ?>
                 </td>
                 <td class="text-right">
-                    <?php echo format_currency($invoice->invoice_item_tax_total); ?>
+                    <?php echo pdf_money($invoice->amount_curre, $invoice->invoice_item_tax_total); ?>
                 </td>
             </tr>
         <?php } ?>
@@ -187,17 +188,31 @@
                     <?php echo $invoice_tax_rate->invoice_tax_rate_name . ' (' . $invoice_tax_rate->invoice_tax_rate_percent . '%)'; ?>
                 </td>
                 <td class="text-right">
-                    <?php echo format_currency($invoice_tax_rate->invoice_tax_rate_amount); ?>
+                    <?php echo pdf_money($invoice->amount_curre, $invoice_tax_rate->invoice_tax_rate_amount); ?>
                 </td>
             </tr>
         <?php endforeach ?>
+        <?php $discount = invoice_discount_value($invoice);
+        if ($discount > 0) : ?>
+            <tr>
+                <td <?php echo ($show_discounts ? 'colspan="5"' : 'colspan="4"'); ?> class="text-right">
+                    <?php echo lang('discount');
+                    if ((float)$invoice->invoice_discount_percent > 0 && (float)$invoice->invoice_discount_amount == 0) {
+                        echo ' (' . (float)$invoice->invoice_discount_percent . '%)';
+                    } ?>
+                </td>
+                <td class="text-right">
+                    - <?php echo pdf_money($invoice->amount_curre, $discount); ?>
+                </td>
+            </tr>
+        <?php endif; ?>
 
         <tr>
             <td <?php echo ($show_discounts ? 'colspan="5"' : 'colspan="4"'); ?> class="text-right">
                 <b><?php echo lang('total'); ?></b>
             </td>
             <td class="text-right">
-                <b><?php echo format_currency($invoice->invoice_total); ?></b>
+                <b><?php echo pdf_money($invoice->amount_curre, $invoice->invoice_total); ?></b>
             </td>
         </tr>
         <tr>
@@ -205,7 +220,7 @@
                 <?php echo lang('paid'); ?>
             </td>
             <td class="text-right">
-                <?php echo format_currency($invoice->invoice_paid); ?>
+                <?php echo pdf_money($invoice->amount_curre, $invoice->invoice_paid); ?>
             </td>
         </tr>
         <tr>
@@ -213,7 +228,7 @@
                 <b><?php echo lang('balance'); ?></b>
             </td>
             <td class="text-right">
-                <b><?php echo format_currency($invoice->invoice_balance); ?></b>
+                <b><?php echo pdf_money($invoice->amount_curre, $invoice->invoice_balance); ?></b>
             </td>
         </tr>
         </tbody>

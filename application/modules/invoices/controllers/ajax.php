@@ -74,17 +74,9 @@ class Ajax extends Admin_Controller
 
             $invoice_status = $this->input->post('invoice_status_id');
 
-            if ($this->input->post('invoice_discount_amount') === '') {
-                $invoice_discount_amount = floatval(0);
-            } else {
-                $invoice_discount_amount = $this->input->post('invoice_discount_amount');
-            }
-
-            if ($this->input->post('invoice_discount_percent') === '') {
-                $invoice_discount_percent = floatval(0);
-            } else {
-                $invoice_discount_percent = $this->input->post('invoice_discount_percent');
-            }
+            // Whole-invoice discount: a fixed amount and/or a percent (0-100). Blank means none.
+            $invoice_discount_amount = max(0, (float)str_replace(',', '', (string)$this->input->post('invoice_discount_amount')));
+            $invoice_discount_percent = min(100, max(0, (float)str_replace(',', '', (string)$this->input->post('invoice_discount_percent'))));
 
             $db_array = array(
                 'invoice_number' => $this->input->post('invoice_number'),
@@ -120,6 +112,15 @@ class Ajax extends Admin_Controller
             // Recalculate for discounts
             $this->load->model('invoices/mdl_invoice_amounts');
             $this->mdl_invoice_amounts->calculate($invoice_id);
+
+            // Email the client once, the first time the invoice is saved with a total.
+            // A mail problem must never stop the invoice from saving.
+            try {
+                $this->load->helper('invoice_email');
+                invoice_auto_email($invoice_id);
+            } catch (Exception $e) {
+                log_message('error', 'Invoice email failed: ' . $e->getMessage());
+            }
 
             $response = array(
                 'success' => 1

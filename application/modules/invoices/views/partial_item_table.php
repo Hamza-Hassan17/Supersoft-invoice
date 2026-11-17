@@ -262,7 +262,7 @@
                        echo format_currency('0');
                    } ?>
                </td>
-           </tr>
+           </tr> -->
            <tr>
                <td class="td-vert-middle"><?php echo lang('discount'); ?></td>
                <td class="clearfix">
@@ -276,7 +276,7 @@
                            } ?>>
            
                            <div
-                               class="input-group-addon"><?php echo $this->mdl_settings->setting('currency_symbol'); ?></div>
+                               class="input-group-addon"><?php echo $invoice->amount_curre ? $invoice->amount_curre : $this->mdl_settings->setting('currency_symbol'); ?></div>
                        </div>
                    </div>
                    <div class="discount-field">
@@ -290,8 +290,9 @@
                            <div class="input-group-addon">&percnt;</div>
                        </div>
                    </div>
+                   <small class="text-muted">Fixed amount or percent. The total updates when you save.</small>
                </td>
-           </tr> -->
+           </tr>
             <tr>
                 <td><?php echo lang('total'); ?></td>
                 <td class="amount val_total add_curr_symbol"><b class="symbol"><?php echo"$invoice->amount_curre"; ?></b> <b><?php echo $invoice->invoice_total; ?></b></td>

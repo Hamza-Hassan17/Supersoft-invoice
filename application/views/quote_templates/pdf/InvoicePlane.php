@@ -1,16 +1,16 @@
 <html lang="<?php echo lang('cldr'); ?>">
 <head>
     <meta charset="utf-8">
-    <title><?php echo lang('quote'); ?></title>
+    <title>Quotation</title>
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/default/css/templates.css">
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/default/css/custom-pdf.css">
 </head>
 <body>
-<header class="clearfix">
+<header class="clearfix" style="padding-top:0;">
 
     <div id="logo">
         <div>
-            <h1 class="invoice-title" style="text-align:center"><?php echo lang('quote'); ?></h1>
+            <h1 class="invoice-title" style="text-align:center;margin:0 0 6px 0;line-height:1.1em;">Quotation</h1>
         </div>
         <?php echo invoice_logo_pdf(); ?>
     </div>
@@ -107,12 +107,12 @@
     <div class="invoice-details clearfix">
         <table>
             <tr>
-                <td><?php echo 'Quote Number' . ':'; ?></td>
+                <td>Quotation Number:</td>
                 <td><?php echo $quote->quote_number ; ?></td>
             </tr>
 
             <tr>
-                <td><?php echo lang('quote_date') . ':'; ?></td>
+                <td>Quotation Date:</td>
                 <td><?php echo date_from_mysql($quote->quote_date_created, true); ?></td>
             </tr>
             <tr>
@@ -121,12 +121,12 @@
             </tr>
             <tr>
                 <td><?php echo lang('total') . ': '; ?></td>
-                <td><?php echo format_currency($quote->quote_total); ?></td>
+                <td><?php echo pdf_money('', $quote->quote_total); ?></td>
             </tr>
         </table>
     </div>
 
-    <!-- <h1 class="invoice-title"><?php //echo lang('quote') . ' ' . $quote->quote_number; ?></h1> -->
+    <h1 class="invoice-title"><?php echo 'Quotation ' . $quote->quote_number; ?></h1>
 
     <table class="item-table">
         <thead>
@@ -152,15 +152,15 @@
                     <?php echo format_amount($item->item_quantity); ?>
                 </td>
                 <td class="text-right">
-                    <?php echo format_currency($item->item_price); ?>
+                    <?php echo pdf_money('', $item->item_price); ?>
                 </td>
                 <?php if ($show_discounts) :?>
                     <td class="text-right">
-                        <?php echo format_currency($item->item_discount); ?>
+                        <?php echo pdf_money('', $item->item_discount); ?>
                     </td>
                 <?php endif; ?>
                 <td class="text-right">
-                    <?php echo format_currency($item->item_subtotal); ?>
+                    <?php echo pdf_money('', $item->item_subtotal); ?>
                 </td>
             </tr>
         <?php } ?>
@@ -170,7 +170,7 @@
 
         <tr>
             <td <?php echo ($show_discounts ? 'colspan="5"' : 'colspan="4"'); ?> class="text-right"><?php echo lang('subtotal'); ?></td>
-            <td class="text-right"><?php echo format_currency($quote->quote_item_subtotal); ?></td>
+            <td class="text-right"><?php echo pdf_money('', $quote->quote_item_subtotal); ?></td>
         </tr>
 
         <?php if ($quote->quote_item_tax_total > 0) { ?>
@@ -179,7 +179,7 @@
                     <?php echo lang('item_tax'); ?>
                 </td>
                 <td class="text-right">
-                    <?php echo format_currency($quote->quote_item_tax_total); ?>
+                    <?php echo pdf_money('', $quote->quote_item_tax_total); ?>
                 </td>
             </tr>
         <?php } ?>
@@ -190,7 +190,7 @@
                     <?php echo $quote_tax_rate->quote_tax_rate_name . ' (' . $quote_tax_rate->quote_tax_rate_percent . '%)'; ?>
                 </td>
                 <td class="text-right">
-                    <?php echo format_currency($quote_tax_rate->quote_tax_rate_amount); ?>
+                    <?php echo pdf_money('', $quote_tax_rate->quote_tax_rate_amount); ?>
                 </td>
             </tr>
         <?php endforeach ?>
@@ -200,7 +200,7 @@
                 <b><?php echo lang('total'); ?></b>
             </td>
             <td class="text-right">
-                <b><?php echo format_currency($quote->quote_total); ?></b>
+                <b><?php echo pdf_money('', $quote->quote_total); ?></b>
             </td>
         </tr>
         </tbody>

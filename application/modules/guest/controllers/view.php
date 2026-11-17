@@ -70,6 +70,29 @@ class View extends Base_Controller
         }
     }
 
+    /**
+     * Public PDF for the QR code printed on invoices. Unlike generate_invoice_pdf
+     * above, it works for every status (including Outstanding) and always
+     * shows the current amounts. The random url key is the only access check,
+     * as with the other guest links.
+     */
+    public function invoice_pdf($invoice_url_key = '')
+    {
+        if (!preg_match('/^[A-Za-z0-9]{8,64}$/', $invoice_url_key)) {
+            show_404();
+        }
+
+        $this->load->model('invoices/mdl_invoices');
+        $invoice = $this->mdl_invoices->where('ip_invoices.invoice_url_key', $invoice_url_key)->get()->row();
+
+        if (!$invoice) {
+            show_404();
+        }
+
+        $this->load->helper('pdf');
+        generate_invoice_pdf($invoice->invoice_id, TRUE);
+    }
+
     public function quote($quote_url_key)
     {
         $this->load->model('quotes/mdl_quotes');
