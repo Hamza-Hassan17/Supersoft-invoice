@@ -21,11 +21,15 @@ function format_currency($amount)
     global $CI;
     $currency_symbol = $CI->mdl_settings->setting('currency_symbol');
     $currency_symbol_placement = $CI->mdl_settings->setting('currency_symbol_placement');
+    // Always group thousands (10,000) on screen, even when the setting is blank.
     $thousands_separator = $CI->mdl_settings->setting('thousands_separator');
     $decimal_point = $CI->mdl_settings->setting('decimal_point');
+    if ($thousands_separator === '' || $thousands_separator === NULL) {
+        $thousands_separator = ($decimal_point === ',') ? '.' : ',';
+    }
 
     if ($currency_symbol_placement == 'before') {
-        return $currency_symbol . number_format($amount, ($decimal_point) ? 2 : 0, $decimal_point, $thousands_separator);
+        return $currency_symbol . ' ' . number_format($amount, ($decimal_point) ? 2 : 0, $decimal_point, $thousands_separator);
     } elseif ($currency_symbol_placement == 'afterspace') {
         return number_format($amount, ($decimal_point) ? 2 : 0, $decimal_point, $thousands_separator) . '&nbsp;' . $currency_symbol;
     } else {

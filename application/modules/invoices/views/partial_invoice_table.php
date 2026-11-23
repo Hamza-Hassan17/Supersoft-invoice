@@ -62,11 +62,11 @@
                 <td class="amount <?php if ($invoice->invoice_sign == '-1') {
                     echo 'text-danger';
                 }; ?>">
-                    <?php echo $invoice->amount_curre;echo ' '; echo ($invoice->invoice_total); ?>
+                    <?php echo $invoice->amount_curre . ' ' . number_format((float)$invoice->invoice_total, 2); ?>
                 </td>
 
                 <td class="amount">
-                    <?php echo $invoice->amount_curre;echo ' '; echo ($invoice->invoice_balance); ?>
+                    <?php echo $invoice->amount_curre . ' ' . number_format((float)$invoice->invoice_balance, 2); ?>
                 </td>
 
                 <td style="white-space: nowrap;">

@@ -295,7 +295,7 @@
            </tr>
             <tr>
                 <td><?php echo lang('total'); ?></td>
-                <td class="amount val_total add_curr_symbol"><b class="symbol"><?php echo"$invoice->amount_curre"; ?></b> <b><?php echo $invoice->invoice_total; ?></b></td>
+                <td class="amount val_total add_curr_symbol"><b class="symbol"><?php echo"$invoice->amount_curre"; ?></b> <b><?php echo number_format((float)$invoice->invoice_total, 2); ?></b></td>
             </tr>
             <tr>
                 <td><?php echo lang('paid'); ?></td>
@@ -310,7 +310,7 @@
                 <?php if ($invoice->is_read_only == 1) { ?>
                 <td class="amount"><b><input class="balan_val" type="text" value="<?php echo $invoice->invoice_balance; ?>"></b></td>
                 <?php } else { ?>
-                  <td class="amount add_curr_symbol val_total4"><b class="symbol"><?php echo"$invoice->amount_curre";  ?></b> <b><?php echo $invoice->invoice_balance; ?></b></td>
+                  <td class="amount add_curr_symbol val_total4"><b class="symbol"><?php echo"$invoice->amount_curre";  ?></b> <b><?php echo number_format((float)$invoice->invoice_balance, 2); ?></b></td>
                 <?php } ?>
             </tr>
         </table>
@@ -343,6 +343,10 @@
 
 <script type="text/javascript">
   $(document).ready(function(){
+  // Amounts are shown as 10,000.00, so strip commas before calculating.
+  function amount_num(value) { return parseFloat(String(value).replace(/,/g, '')) || 0; }
+  function amount_fmt(value) { return value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
+
    
     // var a ;
     // var b  ;
@@ -382,30 +386,30 @@
       item_box_amo3 = (parseInt(item_box_amo2) + 3);
       final_box_amo = dis_amo.substring(item_box_amo2, item_box_amo3);*/
      
-        count_number1 = parseInt(c,10) + parseInt(dis_amo,10);
+        count_number1 = amount_num(c) + amount_num(dis_amo);
        
         // console.log(count_number1);
          // $(".val_total").html('&pound'+count_number1+'.00');
-         $(".val_total b:last").html(count_number1+'.00');
+         $(".val_total b:last").html(amount_fmt(count_number1));
          
          $(".val_total4 b:last").text('');
-         $(".val_total4 b:last").html(count_number1+'.00');
+         $(".val_total4 b:last").html(amount_fmt(count_number1));
       }
       else
       {
             dis_amo = $('.val_total b:last').text();
-            count_number1 = parseInt(c,10) + parseInt(dis_amo,10);
-            $(".val_total b:last").html(count_number1+'.00');
+            count_number1 = amount_num(c) + amount_num(dis_amo);
+            $(".val_total b:last").html(amount_fmt(count_number1));
 
             dis_amo = $(".val_total4 b:last").text();
             $(".val_total4 b:last").text('');
-            count_number1 = parseInt(c,10) + parseInt(dis_amo,10);
+            count_number1 = amount_num(c) + amount_num(dis_amo);
 
-            $(".val_total4 b:last").html(count_number1+'.00');
+            $(".val_total4 b:last").html(amount_fmt(count_number1));
       }
        // $(".val_total1").val(count_number1+'.00');
        
-       // $(".val_total4 b:first").html(count_number1+'.00');
+       // $(".val_total4 b:first").html(amount_fmt(count_number1));
     });
 
     incr = 1;
@@ -429,9 +433,9 @@
         }
       }
       ++incr;
-      count_number1 = parseInt(bala_amoun,10) - parseInt(paid_amoun,10) ;
+      count_number1 = amount_num(bala_amoun) - amount_num(paid_amoun) ;
       $(".val_total4 b:last").text('');
-      $(".val_total4 b:last").html(count_number1+'.00');
+      $(".val_total4 b:last").html(amount_fmt(count_number1));
     });
     
     // $('.item_dis_val').keyup(function() {
